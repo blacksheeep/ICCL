@@ -17,7 +17,7 @@ class NFNTransport{
   }
 
   def decodePacket(str: String): Packet = {
-    str.unpickle[Packet] match {
+    str.unpickle[Packet] match { //sometimes you have to replace the template with NFNInterest or NFNContent to compile it successful
       case i: NFNInterest => i
       case c: NFNContent => c
     }
