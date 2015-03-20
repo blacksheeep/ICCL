@@ -1,15 +1,14 @@
-import NFNcore.Lambda._
-import NFNcore.Lambda.Debug._
 import Logging._
-  
+import NFNcore.Lambda._
+import NFNcore.Messaging.NFNTransport
+import NFNcore.Packets.{NFNContent, NFNInterest}
 
-
+import scala.pickling.json.JSONPickleFormat
 
 
 object test extends App{
   
   val parser = new LambdaParser
-  import parser.{Success, NoSuccess}
   
   //val ast = parser.parse("(λs.((λz.(s z)) x)) y")     
   //val ast = parser.parse("(λx.(λy.y(λz.z)x)a)b")   
@@ -45,19 +44,19 @@ object test extends App{
   //val src = parser.applyDict("function rec 2 (ifelse (eq _1 _2) (add _1 _2) (call 3 rec (add _1 1) _2)) endfunction call 3 rec 1 5")
   //val src = parser.applyDict("function rec 2 (ifelse (eq _1 _2) (add _1 _2) (call 3 rec (add _1 ((λx.x) 2)) _2)) 1 endfunction (λx.call 3 rec 1 x) 8")
   
-  val src = parser.applyDict("""
-    function sumlist 2 
+  /*val src = parser.applyDict("""
+    function sumlist 1
       ifelse (eq (len _1) 1) 
         (head _1)
         (add 
-          (call 3 sumlist (tail _1) (add _2 -1) )
-          head _1
+          (call 3 sumlist (tail _1))
+          (head _1)
         ) 
     endfunction
-    call 3 sumlist list(1 2 3 4 5 6 7 8 9 10) 10
-    """)
+    call 3 sumlist list(1 2 3 4 5 6 7 8 9 10)
+    """)*/
     
-  //val src = parser.applyDict("head (tail (prepend 3 list(2 1)))")
+  val src = parser.applyDict("head (tail (prepend 3 list(2 1)))")
   
   DEBUGMSG(Debuglevel.INFO, src)
   val ast = parser.parse(src)
@@ -75,6 +74,18 @@ object test extends App{
   val reduced = krivine(opcode)
  
   DEBUGMSG(Debuglevel.INFO,"Result: "+ reduced)
+
+
+  val transport = new NFNTransport
+
+  val ibin = transport.encodePacket(new NFNInterest(List("name", "name2"), "i1", Nil))
+  val ipkt = transport.decodePacket(ibin)
+
+  val cbin = transport.encodePacket(new NFNContent(List("name", "name2"), "i1", Nil, Nil))
+  val cpkt = transport.decodePacket(cbin)
+
+  println(ipkt)
+  println(cpkt)
   
   
 }
