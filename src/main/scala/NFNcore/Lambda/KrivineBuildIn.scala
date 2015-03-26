@@ -1,10 +1,8 @@
 package NFNcore.Lambda
 
-import Logging.DEBUGMSG
-import Logging.Debuglevel
+import Logging.{DEBUGMSG, Debuglevel}
 
-import scala.collection.mutable.{Map,
-      SynchronizedMap, HashMap}
+import scala.collection.mutable.Map
 
 class KrivineBuildIn {
   

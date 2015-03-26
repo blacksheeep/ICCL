@@ -1,9 +1,5 @@
-import Logging._
 import NFNcore.Lambda._
-import NFNcore.Messaging.NFNTransport
-import NFNcore.Packets.{NFNContent, NFNInterest}
-
-import scala.pickling.json.JSONPickleFormat
+import NFNcore.NFNNode
 
 
 object test extends App{
@@ -56,7 +52,7 @@ object test extends App{
     call 3 sumlist list(1 2 3 4 5 6 7 8 9 10)
     """)*/
     
-  val src = parser.applyDict("head (tail (prepend 3 list(2 1)))")
+  /*val src = parser.applyDict("head (tail (prepend 3 list(2 1)))")
   
   DEBUGMSG(Debuglevel.INFO, src)
   val ast = parser.parse(src)
@@ -74,18 +70,21 @@ object test extends App{
   val reduced = krivine(opcode)
  
   DEBUGMSG(Debuglevel.INFO,"Result: "+ reduced)
+*/
+
+  //val encoder = new PacketEncoder
+
+  //val ibin = encoder.encodePacket(new NFNInterest(List("name", "name2"), "i1", Nil))
+  //println(ibin)
+  //val ipkt = encoder.decodePacket(ibin)
+
+  //val cbin = encoder.encodePacket(new NFNContent(List("name", "name2"), "i1", Nil, Nil))
+  //val cpkt = encoder.decodePacket(cbin)
+
+  //println(ipkt)
+  //println(cpkt)
 
 
-  val transport = new NFNTransport
 
-  val ibin = transport.encodePacket(new NFNInterest(List("name", "name2"), "i1", Nil))
-  val ipkt = transport.decodePacket(ibin)
-
-  val cbin = transport.encodePacket(new NFNContent(List("name", "name2"), "i1", Nil, Nil))
-  val cpkt = transport.decodePacket(cbin)
-
-  println(ipkt)
-  println(cpkt)
-  
   
 }

@@ -1,8 +1,8 @@
 package NFNcore.Lambda
 
-import scala.util.parsing.combinator.syntactical.StdTokenParsers
+import scala.util.parsing.combinator.PackratParsers
 import scala.util.parsing.combinator.lexical.StdLexical
-import scala.util.parsing.combinator.{Parsers, PackratParsers}
+import scala.util.parsing.combinator.syntactical.StdTokenParsers
 
 class LambdaLexer extends StdLexical {
   override def letter = elem("letter", c => (c.isLetter && c != 'λ') || c == '/')

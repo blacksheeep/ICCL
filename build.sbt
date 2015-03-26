@@ -5,7 +5,7 @@ lazy val commonSettings = Seq(
 	scalaVersion := "2.11.5"
 )
 
-lazy val nfn = (project in file(".")).
+lazy val NFN = (project in file(".")).
 	settings(commonSettings: _*).
 	settings(
 		libraryDependencies ++= nfnDeps

@@ -1,8 +1,7 @@
 package NFNcore.Lambda
-import scala.collection.mutable.{Map,
-      SynchronizedMap, HashMap}
-import Logging.Debuglevel
-import Logging.DEBUGMSG
+import Logging.{DEBUGMSG, Debuglevel}
+
+import scala.collection.mutable.Map
 
 //Function inside the Krivine machine
 case class Func(expr: List[KrivineInstruction], numOfParams: Int) 

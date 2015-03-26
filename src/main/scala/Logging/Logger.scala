@@ -6,7 +6,7 @@ object Debuglevel extends Enumeration{
   
 }
 
-import Debuglevel._
+import Logging.Debuglevel._
 
 object DEBUGMSG {
   val DEBUGLEVEL = Debuglevel.TRACE
