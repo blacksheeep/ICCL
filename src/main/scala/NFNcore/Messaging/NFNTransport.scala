@@ -50,6 +50,7 @@ case class TCPInterface(address: String, port: Int, prefix: List[String]) extend
     val pkt = in.readObject() match {
       case i: NFNInterest => i
       case c: NFNContent => c
+      case m: NFNManagement => m
       case _ => ???
     }
     return pkt
@@ -75,6 +76,7 @@ case class TCPServerInterface(port: Int) {
     val pkt = in.readObject() match {
       case i: NFNInterest => return (i, out)
       case c: NFNContent => return (c, out)
+      case m: NFNManagement => return (m, out)
       case _ => ???
     }
     ???
