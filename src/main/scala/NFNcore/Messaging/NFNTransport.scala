@@ -46,7 +46,6 @@ case class TCPInterface(address: String, port: Int, prefix: List[String]) extend
   }
 
   override def receivePacket(): Packet = {
-
     val pkt = in.readObject() match {
       case i: NFNInterest => i
       case c: NFNContent => c
@@ -60,7 +59,6 @@ case class TCPInterface(address: String, port: Int, prefix: List[String]) extend
 case class TCPServerInterface(port: Int) {
 
   val server = new ServerSocket(port)
-  var reply_mapping: Map[Packet, ObjectOutputStream] = Map()
 
   def sendPacket(pkt: Packet, out: ObjectOutputStream) = {
     out.writeObject(pkt)

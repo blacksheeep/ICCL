@@ -19,10 +19,10 @@ object NFNClient extends App{
     case Some(config) => {
       val face = new TCPInterface("localhost", config.targetport, List("hallo", "welt"))
 
-      //face.sendPacket(NFNInterest(List("hallo", "welt"),"test", Nil))
+      face.sendPacket(NFNInterest(List("hallo", "welt"),"test", Nil))
 
       //install face
-      face.sendPacket(NFNManagement("newface", List("localhost", "10001")))
+      //face.sendPacket(NFNManagement("newface", List("localhost", "10001")))
 
       println("Packet sent, waiting for reply")
       val reply = face.receivePacket()
