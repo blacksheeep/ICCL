@@ -28,6 +28,7 @@ class PacketEncoder{
 }
 
 sealed trait Interface{
+  val num: Int
   val out: ObjectOutputStream
 
   def sendPacket(packet: Packet)
@@ -35,7 +36,7 @@ sealed trait Interface{
   def receivePacket(): Packet
 }
 
-case class TCPInterface(address: String, port: Int, prefix: List[String]) extends Interface {
+case class TCPInterface(address: String, port: Int, prefix: List[String], num: Int) extends Interface {
   val sock: Socket = new Socket(InetAddress.getByName(address), port)
   lazy val in = new ObjectInputStream(sock.getInputStream())
   val out = new ObjectOutputStream(sock.getOutputStream())

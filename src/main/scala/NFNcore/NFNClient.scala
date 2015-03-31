@@ -17,7 +17,12 @@ object NFNClient extends App{
 
   parser.parse(args, NFNClientConfig()) match {
     case Some(config) => {
-      val face = new TCPInterface("localhost", config.targetport, List("hallo", "welt"))
+      val face = new TCPInterface("localhost", config.targetport, List("hallo", "welt"), 0)
+
+      //face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
+
+      //Thread.sleep(2000)
+
 
       face.sendPacket(NFNInterest(List("hallo", "welt"),"test", Nil))
 
