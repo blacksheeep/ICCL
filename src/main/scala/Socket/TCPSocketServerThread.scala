@@ -2,7 +2,7 @@ package Socket
 
 import java.io.ObjectOutputStream
 
-import NFNcore.Messaging.TCPServerInterface
+import NFNcore.Messaging.{TCPInterface, TCPServerInterface}
 import NFNcore.Packets._
 
 /**
@@ -12,13 +12,18 @@ class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStrea
   val sock: TCPServerInterface = new TCPServerInterface(port)
   var running = false
 
+  var nextFaceNum = 0;
+
   override def run(): Unit = {
-    running = true;
-
+    running = true
     while(running){
-      val (pkt, out) = sock.receivePacket()
-
-      packethandler(pkt, out)
+      val (pkt, tcpInterface) = sock.receivePacket()
+      //This face is not added to the face list... it is only for receiving from another node or replying (NOT USED BY FIB!).
+      //If TCP connection is closed, the face will be deleted
+      val newface = new TCPSocketThread(nextFaceNum, false, tcpInterface, packethandler)
+      nextFaceNum += 1
+      newface.start()
+      packethandler(pkt, tcpInterface.out)
 
     }
   }

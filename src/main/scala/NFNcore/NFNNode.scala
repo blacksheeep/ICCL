@@ -17,7 +17,7 @@ class NFNNode(serverport: Int){
   var CS: ConcurrentHashMap[List[String], NFNContent] = new ConcurrentHashMap()
   var FIB: ConcurrentHashMap[List[List[String]], Int] = new ConcurrentHashMap()
   var PIT: ConcurrentHashMap[NFNInterest, List[Int]] = new ConcurrentHashMap()
-  var nextFaceNum = 0;
+
 
   var faces: List[TCPSocketThread] = List()
   val reciveface = new TCPSocketServerThread(serverport, handlePacket)
@@ -28,8 +28,8 @@ class NFNNode(serverport: Int){
     if(packet.command == "newface"){ //address port face
       val targetaddress = packet.params(0)
       val targetport = packet.params(1).toInt
-      val newface = new TCPSocketThread(nextFaceNum, targetaddress, targetport, List("hello"), handlePacket)
-      nextFaceNum +=1
+      val newface = new TCPSocketThread(reciveface.nextFaceNum, true, targetaddress, targetport, handlePacket)
+      reciveface.nextFaceNum +=1
 
       newface.start()
       faces = newface :: faces
@@ -57,6 +57,9 @@ class NFNNode(serverport: Int){
     DEBUGMSG(Debuglevel.INFO, "handle interest message" + packet.toString)
 
     println(packet.name, CS.toString)
+
+
+
     if(checkCS(packet.name)){
       reply.writeObject(grabCS(packet.name))
     }
@@ -69,8 +72,9 @@ class NFNNode(serverport: Int){
     packet match{
       case m: NFNManagement => mgmt(m)
       case i: NFNInterest => handleInterest(i, reply)
+      case _ => reply.writeObject(new NFNContent(List("dummy"), "test", Nil, ""))
     }
-    //reply.writeObject(new NFNContent(List("hallo", "welt"), "test", Nil, ""))
+
   }
 
   def mainloop(): Unit ={

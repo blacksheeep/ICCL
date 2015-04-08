@@ -36,14 +36,19 @@ sealed trait Interface{
   def receivePacket(): Packet
 }
 
-case class TCPInterface(address: String, port: Int, prefix: List[String], num: Int) extends Interface {
-  val sock: Socket = new Socket(InetAddress.getByName(address), port)
+case class TCPInterface(sock: Socket, num: Int) extends Interface {
+
+  def this(address: String, port: Int, num: Int) = {
+    this(new Socket(InetAddress.getByName(address), port), num)
+  }
+
   lazy val in = new ObjectInputStream(sock.getInputStream())
   val out = new ObjectOutputStream(sock.getOutputStream())
 
 
   override def sendPacket(pkt: Packet) = {
     out.writeObject(pkt)
+    out.flush()
   }
 
   override def receivePacket(): Packet = {
@@ -67,15 +72,16 @@ case class TCPServerInterface(port: Int) {
 
   //maintain list with reply sockets for sending a reply msg
 
-  def receivePacket(): (Packet, ObjectOutputStream) = {
+  def receivePacket(): (Packet, TCPInterface) = {
     val sock = server.accept()
-    val in = new ObjectInputStream(sock.getInputStream())
-    val out = new ObjectOutputStream(sock.getOutputStream())
 
-    val pkt = in.readObject() match {
-      case i: NFNInterest => return (i, out)
-      case c: NFNContent => return (c, out)
-      case m: NFNManagement => return (m, out)
+    val tcpInterface = new TCPInterface(sock, 0)
+
+
+    val pkt = tcpInterface.receivePacket() match {
+      case i: NFNInterest => return (i, tcpInterface)
+      case c: NFNContent => return (c, tcpInterface)
+      case m: NFNManagement => return (m, tcpInterface)
       case _ => ???
     }
     ???

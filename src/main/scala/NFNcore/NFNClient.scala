@@ -17,22 +17,25 @@ object NFNClient extends App{
 
   parser.parse(args, NFNClientConfig()) match {
     case Some(config) => {
-      val face = new TCPInterface("localhost", config.targetport, List("hallo", "welt"), 0)
-
-      //face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
-
-      //Thread.sleep(2000)
-
-
-      face.sendPacket(NFNInterest(List("hallo", "welt"),"test", Nil))
+      val face = new TCPInterface("localhost", config.targetport, 0)
 
       //install face
       //face.sendPacket(NFNManagement("newface", List("localhost", "10001")))
 
-      println("Packet sent, waiting for reply")
-      val reply = face.receivePacket()
+      face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
+      //val reply1 = face.receivePacket()
+      //println(reply1)
 
-      println(reply)
+      Thread.sleep(2000)
+
+      println("Sending packet: ")
+      face.sendPacket(NFNInterest(List("hallo", "welt"),"test", Nil))
+
+      println("Packet sent, waiting for reply")
+      val reply2 = face.receivePacket()
+
+      println(reply2)
+      face.sock.close()
     }
     case None => ???
   }
