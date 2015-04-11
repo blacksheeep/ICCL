@@ -8,7 +8,7 @@ import NFNcore.Packets._
 /**
  * Created by blacksheeep on 30/03/15.
  */
-class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStream) => Unit) extends Thread{
+class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStream, Int) => Unit) extends Thread{
   val sock: TCPServerInterface = new TCPServerInterface(port)
   var running = false
 
@@ -23,7 +23,7 @@ class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStrea
       val newface = new TCPSocketThread(nextFaceNum, false, tcpInterface, packethandler)
       nextFaceNum += 1
       newface.start()
-      packethandler(pkt, tcpInterface.out)
+      packethandler(pkt, tcpInterface.out, -1)
 
     }
   }
