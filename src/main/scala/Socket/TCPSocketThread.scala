@@ -18,18 +18,25 @@ class TCPSocketThread(num: Int, static: Boolean, sock: TCPInterface, packethandl
     this(num, static, new TCPInterface(address, port, num), packethandler)
   }
 
+  def getInterface(): TCPInterface ={
+    return sock
+  }
+
   override def run(): Unit = {
     running = true;
     try {
       while (running) {
-        val pkt = sock.receivePacket()
-        packethandler(pkt, sock.out, num)
+        try {
+          val pkt = sock.receivePacket()
+          packethandler(pkt, sock.out, num)
+        }catch{
+          case e: Exception => { }
+        }
 
       }
     }catch{
       case e: Exception => {
         DEBUGMSG(Debuglevel.DEBUG, "Exit Thread: " + Thread.currentThread().getId)
-        println(e.getCause)
         println(e.getMessage)
         e.printStackTrace()
         return

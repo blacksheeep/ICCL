@@ -10,6 +10,8 @@ import NFNcore.Packets._
  */
 class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStream, Int) => Unit) extends Thread{
   val sock: TCPServerInterface = new TCPServerInterface(port)
+
+  var faces: List[TCPSocketThread] = List()
   var running = false
 
   var nextFaceNum = 0;
@@ -18,9 +20,8 @@ class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStrea
     running = true
     while(running){
       val (pkt, tcpInterface) = sock.receivePacket()
-      //This face is not added to the face list... it is only for receiving from another node or replying (NOT USED BY FIB!).
-      //If TCP connection is closed, the face will be deleted
       val newface = new TCPSocketThread(nextFaceNum, false, tcpInterface, packethandler)
+      faces = newface :: faces
       nextFaceNum += 1
       newface.start()
       packethandler(pkt, tcpInterface.out, -1)

@@ -16,10 +16,10 @@ class NFNNode(serverport: Int){
 
   var CS: ConcurrentHashMap[List[String], NFNContent] = new ConcurrentHashMap()
   var FIB: ConcurrentHashMap[List[String], Int] = new ConcurrentHashMap()
-  var PIT: ConcurrentHashMap[NFNInterest, List[Int]] = new ConcurrentHashMap()
+  var PIT: ConcurrentHashMap[List[String], List[Int]] = new ConcurrentHashMap()
 
 
-  var faces: List[TCPSocketThread] = List()
+
   val reciveface = new TCPSocketServerThread(serverport, handlePacket)
 
 
@@ -36,7 +36,7 @@ class NFNNode(serverport: Int){
       reciveface.nextFaceNum += 1
 
       newface.start()
-      faces = newface :: faces
+      reciveface.faces = newface :: reciveface.faces
 
     }
     else if(packet.command == "prefixreg"){ // faceid name
@@ -74,15 +74,15 @@ class NFNNode(serverport: Int){
     return FIB.get(name)
   }
 
-  def checkPIT(interest: NFNInterest): Boolean ={
+  def checkPIT(interest: List[String]): Boolean ={
     return if (PIT.containsKey(interest)) return true else return false
   }
 
-  def grabPIT(interest: NFNInterest) : List[Int] = {
+  def grabPIT(interest: List[String]) : List[Int] = {
     return PIT.get(interest)
   }
 
-  def pushPIT(interest: NFNInterest, incommingFace: Int): Unit = {
+  def pushPIT(interest: List[String], incommingFace: Int): Unit = {
     if(PIT.containsKey(interest)){
       val entry = PIT.get(interest)
       PIT.put(interest, incommingFace :: entry)
@@ -104,26 +104,37 @@ class NFNNode(serverport: Int){
     else if(checkFIB(packet.name)){
       val face = grabFIB(packet.name)
       val interest = new NFNInterest(packet.name, "interest", null)
-      pushPIT(interest, incommingFace)
-      sendInterest(interest, face)
-      DEBUGMSG(Debuglevel.DEBUG, "Interest was forwarded to face " + face)
+      pushPIT(interest.name, incommingFace)
+      sendPacket(interest, face)
+      DEBUGMSG(Debuglevel.DEBUG, "Interest received on face " + incommingFace + " was forwarded to face " + face)
     }
   }
 
   def handleContent(content: NFNContent, reply: ObjectOutputStream) : Unit = {
-    /*if(checkPIT(content.name)){
-    //TODO handle content
-    }*/
+    if(checkPIT(content.name)){
+      val outface = grabPIT(content.name)
+      sendPacket(content, outface(0)) //TODO for all entries of outface
+      DEBUGMSG(Debuglevel.DEBUG, "Handle Content, forwarded to face " + outface.toString )
+    }else{
+      DEBUGMSG(Debuglevel.DEBUG, "No Matching PIT entry")
+    }
   }
 
-  def sendInterest(interest: NFNInterest, outface: Int): Unit ={
-    val face = faces(outface-1) //TODO check real face number or faces have to be map with id -> face
-    face.sendPacket(interest)
+  def sendPacket(interest: Packet, outface: Int): Unit ={
+
+    val face = reciveface.faces.find(p => p.getInterface().num == outface)
+
+
+    //val face = reciveface.faces(outface) //TODO check real face number or faces have to be map with id -> face
+    face match{
+      case Some(t) => t.sendPacket(interest)
+      case _ => {DEBUGMSG(Debuglevel.DEBUG, "No matching interface found")}
+    }
+
   }
 
   def handlePacket(packet: Packet, reply: ObjectOutputStream, incommingFace: Int): Unit = {
     DEBUGMSG(Debuglevel.INFO, "handle packet" + packet.toString)
-
     packet match{
       case m: NFNManagement => mgmt(m, reply)
       case i: NFNInterest => handleInterest(i, reply, incommingFace)
@@ -136,7 +147,7 @@ class NFNNode(serverport: Int){
   def mainloop(): Unit ={
     var finish: Boolean = false
     reciveface.start()
-    faces.foreach(f => f.start())
+    reciveface.faces.foreach(f => f.start())
 
   }
 }
