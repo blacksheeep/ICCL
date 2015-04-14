@@ -42,6 +42,13 @@ object NFNClient extends App{
       println(reply4)
 
 
+      Thread.sleep(5000)
+
+      face.sendPacket(NFNInterest(NFNName(List("hallo", "welt")),"test", Nil))
+
+      val reply5 = face.receivePacket()
+      println(reply5)
+
     }
     case None => ???
   }

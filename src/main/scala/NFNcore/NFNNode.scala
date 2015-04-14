@@ -65,6 +65,10 @@ class NFNNode(serverport: Int){
     return CS.get(name)
   }
 
+  def pushCS(content: NFNContent) = {
+    CS.put(content.name, content)
+  }
+
   def checkFIB(name: NFNName): Boolean = {
     if (FIB.containsKey(name)) return true else return false
   }
@@ -113,6 +117,7 @@ class NFNNode(serverport: Int){
     if(checkPIT(content.name)){
       val outface = grabPIT(content.name)
       sendPacket(content, outface(0)) //TODO for all entries of outface
+      pushCS(content)
       DEBUGMSG(Debuglevel.DEBUG, "Handle Content, forwarded to face " + outface.toString )
     }else{
       DEBUGMSG(Debuglevel.DEBUG, "No Matching PIT entry")
