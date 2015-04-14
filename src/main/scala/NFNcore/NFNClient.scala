@@ -1,7 +1,7 @@
 package NFNcore
 
 import NFNcore.Messaging.TCPInterface
-import NFNcore.Packets.{NFNManagement, NFNInterest}
+import NFNcore.Packets.{NFNName, PacketCommand, NFNManagement, NFNInterest}
 
 /**
  * Created by blacksheeep on 26/03/15.
@@ -37,7 +37,7 @@ object NFNClient extends App{
 
       Thread.sleep(2000)
 
-      face.sendPacket(NFNInterest(List("hallo", "welt"),"test", Nil))
+      face.sendPacket(NFNInterest(NFNName(List("hallo", "welt")),"test", Nil))
       val reply4 = face.receivePacket()
       println(reply4)
 

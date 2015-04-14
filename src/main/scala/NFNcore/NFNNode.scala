@@ -4,7 +4,7 @@ import java.io.ObjectOutputStream
 
 import Logging.{DEBUGMSG, Debuglevel}
 import NFNcore.Messaging.{Interface, TCPInterface, TCPServerInterface}
-import NFNcore.Packets.{NFNInterest, NFNContent, NFNManagement, Packet}
+import NFNcore.Packets._
 import Socket.{TCPSocketThread, TCPSocketServerThread}
 import java.util.concurrent.ConcurrentHashMap
 
@@ -14,12 +14,11 @@ import java.util.concurrent.ConcurrentHashMap
 class NFNNode(serverport: Int){
 
 
-  var CS: ConcurrentHashMap[List[String], NFNContent] = new ConcurrentHashMap()
-  var FIB: ConcurrentHashMap[List[String], Int] = new ConcurrentHashMap()
-  var PIT: ConcurrentHashMap[List[String], List[Int]] = new ConcurrentHashMap()
+  var CS: ConcurrentHashMap[NFNName, NFNContent] = new ConcurrentHashMap()
+  var FIB: ConcurrentHashMap[NFNName, Int] = new ConcurrentHashMap()
+  var PIT: ConcurrentHashMap[NFNName, List[Int]] = new ConcurrentHashMap()
 
-
-
+  
   val reciveface = new TCPSocketServerThread(serverport, handlePacket)
 
 
@@ -42,7 +41,7 @@ class NFNNode(serverport: Int){
     else if(packet.command == "prefixreg"){ // faceid name
       val faceid = packet.params(0).toInt
       val name = packet.params(1).split("/").toList
-      FIB.put(name, faceid)
+      FIB.put(NFNName(name), faceid)
 
       DEBUGMSG(Debuglevel.DEBUG, "Successfully added prefix " + name + " to face with faceid " + faceid)
       reply.writeObject(NFNManagement("prefixreg", List("successful")))
@@ -51,38 +50,38 @@ class NFNNode(serverport: Int){
     else if(packet.command == "addcontent"){
       val name = packet.params(0).split("/").toList
       val content = packet.params(1)
-      CS.put(name, NFNContent(name,"type", Nil, content))
+      CS.put(NFNName(name), NFNContent(NFNName(name),"type", Nil, content))
 
-      DEBUGMSG(Debuglevel.DEBUG, "Successfully added Content" + NFNContent(name,"type", Nil, content).toString)
+      DEBUGMSG(Debuglevel.DEBUG, "Successfully added Content" + NFNContent(NFNName(name),"type", Nil, content).toString)
       reply.writeObject(NFNManagement("addcontent", List("successful")))
     }
   }
 
-  def checkCS(name: List[String]): Boolean = { //todo: prefix matching?
+  def checkCS(name: NFNName): Boolean = { //todo: prefix matching?
     if (CS.containsKey(name)) return true else return false
   }
 
-  def grabCS(name: List[String]): NFNContent = {
+  def grabCS(name: NFNName): NFNContent = {
     return CS.get(name)
   }
 
-  def checkFIB(name: List[String]): Boolean = {
+  def checkFIB(name: NFNName): Boolean = {
     if (FIB.containsKey(name)) return true else return false
   }
 
-  def grabFIB(name : List[String]): Int = {
+  def grabFIB(name : NFNName): Int = {
     return FIB.get(name)
   }
 
-  def checkPIT(interest: List[String]): Boolean ={
+  def checkPIT(interest: NFNName): Boolean ={
     return if (PIT.containsKey(interest)) return true else return false
   }
 
-  def grabPIT(interest: List[String]) : List[Int] = {
+  def grabPIT(interest: NFNName) : List[Int] = {
     return PIT.get(interest)
   }
 
-  def pushPIT(interest: List[String], incommingFace: Int): Unit = {
+  def pushPIT(interest: NFNName, incommingFace: Int): Unit = {
     if(PIT.containsKey(interest)){
       val entry = PIT.get(interest)
       PIT.put(interest, incommingFace :: entry)
@@ -139,7 +138,7 @@ class NFNNode(serverport: Int){
       case m: NFNManagement => mgmt(m, reply)
       case i: NFNInterest => handleInterest(i, reply, incommingFace)
       case c: NFNContent => handleContent(c, reply)
-      case _ => reply.writeObject(new NFNContent(List("dummy"), "test", Nil, ""))
+      case _ => reply.writeObject(new NFNContent(NFNName(List("error")), "unknown packet", Nil, ""))
     }
 
   }
