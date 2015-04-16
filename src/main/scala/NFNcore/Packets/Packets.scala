@@ -1,12 +1,12 @@
 package NFNcore.Packets
 
-import NFNcore.Lambda.KrivineInstruction
+import NFNcore.Lambda.{NFNName, KrivineInstruction}
 
 sealed trait Packet extends java.io.Serializable
 
 case class Selector(name:String, value:String)
 
-case class NFNInterest(name: NFNName, InterestType: String, selector: List[Selector]) extends Packet{
+case class NFNInterest(name: PacketCommand, InterestType: String, selector: List[Selector]) extends Packet{
   
 }
 
@@ -23,5 +23,3 @@ case class NFNManagement(command: String, params: List[String]) extends Packet{
  * Data structure representations
  */
 case class PacketCommand(commands: List[KrivineInstruction]) {}
-
-case class NFNName(name: List[String]) {}

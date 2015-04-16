@@ -1,5 +1,6 @@
 package NFNcore.Lambda
 import Logging.{DEBUGMSG, Debuglevel}
+import NFNcore.NFNNode
 
 import scala.collection.mutable.Map
 
@@ -7,10 +8,10 @@ import scala.collection.mutable.Map
 case class Func(expr: List[KrivineInstruction], numOfParams: Int) 
 
 
-class Krivine {
+class Krivine(nfnNode: NFNNode){
   
   //Function environment
-  var funcEnv: Map[String, Func] = Map()
+  var funcEnv: Map[NFNName, Func] = Map()
   
   
   def apply(instructions: List[KrivineInstruction]): List[KrivineInstruction] = execute(instructions, List(), Map(), 0)
@@ -40,7 +41,7 @@ class Krivine {
         return execute(instructions.tail, elm :: stack, env, varoffset)
       }
       case VARIABLE(name, varnum) => {
-        if(!stack.isEmpty){
+        if(!stack.isEmpty){ //TODO this is also required for other datatypes, do it generic? appliable?
           return List(VARIABLE(name, varnum)) ++ execute(stack.head, stack.tail, env, varoffset)
         }
         else {
@@ -53,6 +54,9 @@ class Krivine {
       case STRING(s) => {
         return List(STRING(s))
       }
+      case NFNName(comps) => {
+        return List(NFNName(comps))
+      }
       case LISTINST(l) => {
         return List(LISTINST(l))
       }
@@ -61,12 +65,9 @@ class Krivine {
           return lambdafunction(fname, params, env, this)
         }
         else{
-          var buildin = new KrivineBuildIn 
+          var buildin = new KrivineBuildIn(nfnNode)
           return buildin(fname, params, env, varoffset, this)
         }
-      }
-      case LOOKUPINST(_) => {
-        ???
       }
       case IFELSEINST(condition, fulfilled, notfulfilled) => {
         val res = execute(condition, stack, env, varoffset)
@@ -93,7 +94,7 @@ class Krivine {
     }
   }
   
-  def lambdafunction(fname: String, params: List[List[KrivineInstruction]], env: Map[Int, List[KrivineInstruction]], krivine: Krivine): List[KrivineInstruction] = {
+  def lambdafunction(fname: NFNName, params: List[List[KrivineInstruction]], env: Map[Int, List[KrivineInstruction]], krivine: Krivine): List[KrivineInstruction] = {
     val func = funcEnv(fname)
     val numOfParams = func.numOfParams
     

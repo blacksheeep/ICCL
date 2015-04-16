@@ -20,10 +20,11 @@ class LambdaCompiler {
       case Apply(fun, body) => PUSH(compile(body)) :: compile(fun)
       case Const(v) => List(NUMBER(v))
       case Str(str) => List(STRING(str))
+      case Name(str) => List(NFNName(str))
       case Lst(list) => List(LISTINST(list.map(p => compile(p))))
-      case Call(fname, num, params) => List(CALLINST(fname, num, params.map(p => compile(p))))     
+      case Call(fname, num, params) => List(CALLINST(NFNName(fname.name), num, params.map(p => compile(p))))
       case Ifelse(condition, fulfilled, notfulfilled) => List(IFELSEINST(compile(condition), compile(fulfilled), compile(notfulfilled)))
-      case Function(name, numOfParams, startVarNum, expr, prog) => List(FUNCTIONINST(name, numOfParams, startVarNum, compile(expr), compile(prog)))
+      case Function(name, numOfParams, startVarNum, expr, prog) => List(FUNCTIONINST(NFNName(name.name), numOfParams, startVarNum, compile(expr), compile(prog)))
       case _ => ???
     }
   }  
@@ -66,6 +67,9 @@ class LambdaCompiler {
       }
       case Str(s) => {
         Str(s)
+      }
+      case Name(s) => {
+        Name(s)
       }
       case Lst(list) => {
         Lst(list.mapConserve { e => map_variables(e, env, insideFunction) })

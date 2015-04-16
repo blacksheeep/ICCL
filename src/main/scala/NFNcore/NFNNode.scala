@@ -5,6 +5,7 @@ import java.io.ObjectOutputStream
 import Logging.{DEBUGMSG, Debuglevel}
 import NFNcore.Messaging.{Interface, TCPInterface, TCPServerInterface}
 import NFNcore.Packets._
+import NFNcore.Lambda._
 import Socket.{TCPSocketThread, TCPSocketServerThread}
 import java.util.concurrent.ConcurrentHashMap
 
@@ -14,10 +15,11 @@ import java.util.concurrent.ConcurrentHashMap
 class NFNNode(serverport: Int){
 
 
-  var CS: ConcurrentHashMap[NFNName, NFNContent] = new ConcurrentHashMap()
+  var CS:  ConcurrentHashMap[NFNName, NFNContent] = new ConcurrentHashMap()
   var FIB: ConcurrentHashMap[NFNName, Int] = new ConcurrentHashMap()
-  var PIT: ConcurrentHashMap[NFNName, List[Int]] = new ConcurrentHashMap()
+  var PIT: ConcurrentHashMap[KrivineInstruction, Int] = new ConcurrentHashMap()
 
+  val PCT: ConcurrentHashMap[Int, KrivineThread] = new ConcurrentHashMap()
   
   val reciveface = new TCPSocketServerThread(serverport, handlePacket)
 
@@ -77,28 +79,28 @@ class NFNNode(serverport: Int){
     return FIB.get(name)
   }
 
-  def checkPIT(interest: NFNName): Boolean ={
+  def checkPIT(interest: KrivineInstruction): Boolean ={
     return if (PIT.containsKey(interest)) return true else return false
   }
 
-  def grabPIT(interest: NFNName) : List[Int] = {
+  def grabPIT(interest: KrivineInstruction) : Int = {
     return PIT.get(interest)
   }
 
-  def pushPIT(interest: NFNName, incommingFace: Int): Unit = {
-    if(PIT.containsKey(interest)){
+  def pushPIT(interest: KrivineInstruction, incommingFace: Int): Unit = {
+    /*if(PIT.containsKey(interest)){
       val entry = PIT.get(interest)
       PIT.put(interest, incommingFace :: entry)
     }
-    else{
-      PIT.put(interest, List(incommingFace))
-    }
+    else{*/
+      PIT.put(interest, incommingFace)
+    //}
   }
 
   def handleInterest(packet: NFNInterest, reply: ObjectOutputStream, incommingFace: Int) = {
     DEBUGMSG(Debuglevel.INFO, "handle interest message" + packet.toString)
 
-    println(packet.name, CS.toString)
+    /*println(packet.name, CS.toString)
 
     if(checkCS(packet.name)){
       reply.writeObject(grabCS(packet.name))
@@ -110,13 +112,15 @@ class NFNNode(serverport: Int){
       pushPIT(interest.name, incommingFace)
       sendPacket(interest, face)
       DEBUGMSG(Debuglevel.DEBUG, "Interest received on face " + incommingFace + " was forwarded to face " + face)
-    }
+    }*/
+    val kt = new KrivineThread(packet.name.commands, this)
+    PCT.put(1, kt)
   }
 
   def handleContent(content: NFNContent, reply: ObjectOutputStream) : Unit = {
     if(checkPIT(content.name)){
       val outface = grabPIT(content.name)
-      sendPacket(content, outface(0)) //TODO for all entries of outface
+      sendPacket(content, outface) //TODO for all entries of outface
       pushCS(content)
       DEBUGMSG(Debuglevel.DEBUG, "Handle Content, forwarded to face " + outface.toString )
     }else{

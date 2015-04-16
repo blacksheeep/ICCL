@@ -1,7 +1,9 @@
 package NFNcore
 
+import NFNcore.Lambda._
+
 import NFNcore.Messaging.TCPInterface
-import NFNcore.Packets.{NFNName, PacketCommand, NFNManagement, NFNInterest}
+import NFNcore.Packets.{PacketCommand, NFNManagement, NFNInterest}
 
 /**
  * Created by blacksheeep on 26/03/15.
@@ -18,7 +20,28 @@ object NFNClient extends App{
   parser.parse(args, NFNClientConfig()) match {
     case Some(config) => {
 
-      val face2 = new TCPInterface("localhost", 10001, 0)
+      val face = new TCPInterface("localhost", config.targetport, 0)
+      val parser = new LambdaParser
+      val compiler = new LambdaCompiler
+
+      val prog = "add 1 2"
+
+      val src = parser.applyDict(prog)
+      val ast = parser.parse(src)
+
+      println(ast)
+
+      val opcode = compiler(ast.get)
+
+      val pc = new PacketCommand(opcode)
+
+      val interest = new NFNInterest(pc, "interest", null)
+
+      face.sendPacket(interest)
+
+      val res = face.receivePacket()
+
+      /*val face2 = new TCPInterface("localhost", 10001, 0)
       face2.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
       val reply1 = face2.receivePacket()
       println(reply1)
@@ -47,7 +70,7 @@ object NFNClient extends App{
       face.sendPacket(NFNInterest(NFNName(List("hallo", "welt")),"test", Nil))
 
       val reply5 = face.receivePacket()
-      println(reply5)
+      println(reply5)*/
 
     }
     case None => ???

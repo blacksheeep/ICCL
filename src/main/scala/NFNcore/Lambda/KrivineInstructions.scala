@@ -39,13 +39,14 @@ case class NUMBER(v: Int) extends KrivineInstruction with Addable with Comparabl
   }
 }
 case class STRING(str: String) extends KrivineInstruction
+case class NFNName(comps: List[String]) extends KrivineInstruction
 case class VARIABLE(name: String, varnum: Int) extends KrivineInstruction
 case class LISTINST(list: List[List[KrivineInstruction]]) extends KrivineInstruction
 
-case class CALLINST(fname: String, num: Int, params: List[List[KrivineInstruction]]) extends KrivineInstruction {//TODO: fine gradulated operations, ifelse, send, excludeparameter etc.
+case class CALLINST(fname: NFNName, num: Int, params: List[List[KrivineInstruction]]) extends KrivineInstruction {//TODO: fine gradulated operations, ifelse, send, excludeparameter etc.
   def getKrivinInstruction() = ???
 }
-case class LOOKUPINST(name: String) extends KrivineInstruction //TODO: fine gradulated operations
+
 case class IFELSEINST(condition: List[KrivineInstruction], fullfiled: List[KrivineInstruction], notfulfilled: List[KrivineInstruction]) extends KrivineInstruction
 
-case class FUNCTIONINST(name: String, numOfParams: Int, startVarNum: Int, expr: List[KrivineInstruction], prog: List[KrivineInstruction]) extends KrivineInstruction
+case class FUNCTIONINST(name: NFNName, numOfParams: Int, startVarNum: Int, expr: List[KrivineInstruction], prog: List[KrivineInstruction]) extends KrivineInstruction
