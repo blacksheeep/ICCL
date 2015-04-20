@@ -1,6 +1,6 @@
 package NFNcore.Lambda
 
-abstract class KrivineInstruction
+abstract class KrivineInstruction extends Serializable
 
 
 /**
@@ -20,7 +20,8 @@ trait Comparable extends KrivineInstruction{
 case class RESULT(res: String) extends KrivineInstruction
 case class ACCESS(varname: String, varnum: Int) extends KrivineInstruction
 case class GRAB(varname: String, varnum: Int) extends KrivineInstruction
-case class PUSH(k: List[KrivineInstruction]) extends KrivineInstruction
+case class PUSH(k: Vector[KrivineInstruction]) extends KrivineInstruction
+case class NOP() extends KrivineInstruction
 case class NUMBER(v: Int) extends KrivineInstruction with Addable with Comparable{
   override def + (second: Addable): Addable = {
     second match{
@@ -39,14 +40,14 @@ case class NUMBER(v: Int) extends KrivineInstruction with Addable with Comparabl
   }
 }
 case class STRING(str: String) extends KrivineInstruction
-case class NFNName(comps: List[String]) extends KrivineInstruction
+case class NFNName(comps: Vector[String]) extends KrivineInstruction
 case class VARIABLE(name: String, varnum: Int) extends KrivineInstruction
-case class LISTINST(list: List[List[KrivineInstruction]]) extends KrivineInstruction
+case class LISTINST(list: Vector[Vector[KrivineInstruction]]) extends KrivineInstruction
 
-case class CALLINST(fname: NFNName, num: Int, params: List[List[KrivineInstruction]]) extends KrivineInstruction {//TODO: fine gradulated operations, ifelse, send, excludeparameter etc.
+case class CALLINST(fname: NFNName, num: Int, params: Vector[Vector[KrivineInstruction]]) extends KrivineInstruction {//TODO: fine gradulated operations, ifelse, send, excludeparameter etc.
   def getKrivinInstruction() = ???
 }
 
-case class IFELSEINST(condition: List[KrivineInstruction], fullfiled: List[KrivineInstruction], notfulfilled: List[KrivineInstruction]) extends KrivineInstruction
+case class IFELSEINST(condition: Vector[KrivineInstruction], fullfiled: Vector[KrivineInstruction], notfulfilled: Vector[KrivineInstruction]) extends KrivineInstruction
 
-case class FUNCTIONINST(name: NFNName, numOfParams: Int, startVarNum: Int, expr: List[KrivineInstruction], prog: List[KrivineInstruction]) extends KrivineInstruction
+case class FUNCTIONINST(name: NFNName, numOfParams: Int, startVarNum: Int, expr: Vector[KrivineInstruction], prog: Vector[KrivineInstruction]) extends KrivineInstruction

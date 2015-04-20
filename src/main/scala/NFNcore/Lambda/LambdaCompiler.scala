@@ -4,8 +4,9 @@ case class environment(e: Int, pos: Int)
 
 class LambdaCompiler {
 
-  def apply(expr: Expr): List[KrivineInstruction] = {
+  def apply(expr: Expr): Vector[KrivineInstruction] = {
     val expr_mapped = map_variables(expr, Map())
+
     return compile(expr_mapped)
   }
   
@@ -13,18 +14,18 @@ class LambdaCompiler {
    * creates opcodes for the NFN Krivine Machine
    * @param expr Take an ast, created with the LambdaParser as input
    */
-  def compile(expr: Expr) : List[KrivineInstruction] = {
+  def compile(expr: Expr) : Vector[KrivineInstruction] = {
     expr match{
-      case Var(varname,varnum) => List(ACCESS(varname,varnum))
-      case Lambda(arg, body) => GRAB(arg.name, arg.num) :: compile(body)
-      case Apply(fun, body) => PUSH(compile(body)) :: compile(fun)
-      case Const(v) => List(NUMBER(v))
-      case Str(str) => List(STRING(str))
-      case Name(str) => List(NFNName(str))
-      case Lst(list) => List(LISTINST(list.map(p => compile(p))))
-      case Call(fname, num, params) => List(CALLINST(NFNName(fname.name), num, params.map(p => compile(p))))
-      case Ifelse(condition, fulfilled, notfulfilled) => List(IFELSEINST(compile(condition), compile(fulfilled), compile(notfulfilled)))
-      case Function(name, numOfParams, startVarNum, expr, prog) => List(FUNCTIONINST(NFNName(name.name), numOfParams, startVarNum, compile(expr), compile(prog)))
+      case Var(varname,varnum) => Vector(ACCESS(varname,varnum))
+      case Lambda(arg, body) => Vector(GRAB(arg.name, arg.num)) ++ compile(body)
+      case Apply(fun, body) => Vector(PUSH(compile(body))) ++ compile(fun)
+      case Const(v) => Vector(NUMBER(v))
+      case Str(str) => Vector(STRING(str))
+      case Name(str) => Vector(NFNName(str))
+      case Lst(list) => Vector(LISTINST(list.map(p => compile(p))))
+      case Call(fname, num, params) => Vector(CALLINST(NFNName(fname.name), num, params.map(p => compile(p))))
+      case Ifelse(condition, fulfilled, notfulfilled) => Vector(IFELSEINST(compile(condition), compile(fulfilled), compile(notfulfilled)))
+      case Function(name, numOfParams, startVarNum, expr, prog) => Vector(FUNCTIONINST(NFNName(name.name), numOfParams, startVarNum, compile(expr), compile(prog)))
       case _ => ???
     }
   }  
@@ -72,7 +73,7 @@ class LambdaCompiler {
         Name(s)
       }
       case Lst(list) => {
-        Lst(list.mapConserve { e => map_variables(e, env, insideFunction) })
+        Lst(list.map { e => map_variables(e, env, insideFunction) })
       }
       //BuildIn Functions
       case Call(name, num, params) => {

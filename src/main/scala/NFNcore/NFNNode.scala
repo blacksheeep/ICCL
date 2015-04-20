@@ -37,12 +37,12 @@ class NFNNode(serverport: Int){
       reciveface.nextFaceNum += 1
 
       newface.start()
-      reciveface.faces = newface :: reciveface.faces
+      reciveface.faces = Vector(newface) ++ reciveface.faces
 
     }
     else if(packet.command == "prefixreg"){ // faceid name
       val faceid = packet.params(0).toInt
-      val name = packet.params(1).split("/").toList
+      val name = packet.params(1).split("/").toVector
       FIB.put(NFNName(name), faceid)
 
       DEBUGMSG(Debuglevel.DEBUG, "Successfully added prefix " + name + " to face with faceid " + faceid)
@@ -50,7 +50,7 @@ class NFNNode(serverport: Int){
 
     }
     else if(packet.command == "addcontent"){
-      val name = packet.params(0).split("/").toList
+      val name = packet.params(0).split("/").toVector
       val content = packet.params(1)
       CS.put(NFNName(name), NFNContent(NFNName(name),"type", Nil, content))
 
@@ -113,8 +113,12 @@ class NFNNode(serverport: Int){
       sendPacket(interest, face)
       DEBUGMSG(Debuglevel.DEBUG, "Interest received on face " + incommingFace + " was forwarded to face " + face)
     }*/
+
+    println(packet)
+
     val kt = new KrivineThread(packet.name.commands, this)
     PCT.put(1, kt)
+    kt.start()
   }
 
   def handleContent(content: NFNContent, reply: ObjectOutputStream) : Unit = {
@@ -147,7 +151,7 @@ class NFNNode(serverport: Int){
       case m: NFNManagement => mgmt(m, reply)
       case i: NFNInterest => handleInterest(i, reply, incommingFace)
       case c: NFNContent => handleContent(c, reply)
-      case _ => reply.writeObject(new NFNContent(NFNName(List("error")), "unknown packet", Nil, ""))
+      case _ => reply.writeObject(new NFNContent(NFNName(Vector("error")), "unknown packet", Nil, ""))
     }
 
   }

@@ -5,30 +5,36 @@ import NFNcore.NFNNode
 import scala.collection.mutable.Map
 
 //Function inside the Krivine machine
-case class Func(expr: List[KrivineInstruction], numOfParams: Int) 
+case class Func(expr: Vector[KrivineInstruction], numOfParams: Int)
 
 
 class Krivine(nfnNode: NFNNode){
   
   //Function environment
   var funcEnv: Map[NFNName, Func] = Map()
+  var instructions : Vector[KrivineInstruction] = Vector()
   
+  def apply(instructions: Vector[KrivineInstruction]): Vector[KrivineInstruction] = {
+    this.instructions = instructions;
+    execute(instructions, Vector(), Map(), 0)
+  }
   
-  def apply(instructions: List[KrivineInstruction]): List[KrivineInstruction] = execute(instructions, List(), Map(), 0)
-  
-  def execute(instructions: List[KrivineInstruction], stack: List[List[KrivineInstruction]], 
-      env: Map[Int, List[KrivineInstruction]], varoffset: Int) : List[KrivineInstruction] = {
+  def execute(instructions: Vector[KrivineInstruction], stack: Vector[Vector[KrivineInstruction]],
+      env: Map[Int, Vector[KrivineInstruction]], varoffset: Int) : Vector[KrivineInstruction] = {
     
     if(instructions.isEmpty) {
-      return List(RESULT(""))
+      return Vector(RESULT(""))
     }    
     DEBUGMSG(Debuglevel.DEBUG, "Executing Krivine Instruction: " + instructions.head.toString() + " varoffset: " + varoffset)
     instructions.head match {
+      case NOP() => {
+        return(execute(instructions.tail, stack, env, varoffset))
+      }
       case ACCESS(varname, varnum) => {
         val offset = 0 //if(varname.startsWith("_")) varoffset else 0 //use varoffset only for function parameters //TODO problem with recursion, since old vars start also with _1
         val inst = env.getOrElse(varnum + offset, Nil)
         if(inst != Nil){
-          return execute(inst ++ instructions.tail, stack, env, varoffset)
+          return execute((inst ++ instructions.tail).toVector, stack, env, varoffset)
         }
         else{
           return execute(instructions.tail ++ List(VARIABLE(varname, varnum)), stack, env, varoffset)
@@ -38,27 +44,27 @@ class Krivine(nfnNode: NFNNode){
         return execute(instructions.tail, stack.tail, env += varnum -> stack.head, varoffset)
       }
       case PUSH(elm) => {
-        return execute(instructions.tail, elm :: stack, env, varoffset)
+        return execute(instructions.tail, Vector(elm) ++ stack, env, varoffset)
       }
       case VARIABLE(name, varnum) => {
         if(!stack.isEmpty){ //TODO this is also required for other datatypes, do it generic? appliable?
-          return List(VARIABLE(name, varnum)) ++ execute(stack.head, stack.tail, env, varoffset)
+          return Vector(VARIABLE(name, varnum)) ++ execute(stack.head, stack.tail, env, varoffset)
         }
         else {
-          return List(VARIABLE(name, varnum))
+          return Vector(VARIABLE(name, varnum))
         }
       }      
       case NUMBER(v) => {
-        return List(NUMBER(v))
+        return Vector(NUMBER(v))
       }
       case STRING(s) => {
-        return List(STRING(s))
+        return Vector(STRING(s))
       }
       case NFNName(comps) => {
-        return List(NFNName(comps))
+        return Vector(NFNName(comps))
       }
       case LISTINST(l) => {
-        return List(LISTINST(l))
+        return Vector(LISTINST(l))
       }
       case CALLINST(fname, num, params) => {
         if(funcEnv.contains(fname)){
@@ -89,16 +95,16 @@ class Krivine(nfnNode: NFNNode){
         return execute(prog, stack, env, varoffset)
       }
       case _ => {
-        return List(RESULT("Error"))
+        return Vector(RESULT("Error"))
       }
     }
   }
   
-  def lambdafunction(fname: NFNName, params: List[List[KrivineInstruction]], env: Map[Int, List[KrivineInstruction]], krivine: Krivine): List[KrivineInstruction] = {
+  def lambdafunction(fname: NFNName, params: Vector[Vector[KrivineInstruction]], env: Map[Int, Vector[KrivineInstruction]], krivine: Krivine): Vector[KrivineInstruction] = {
     val func = funcEnv(fname)
     val numOfParams = func.numOfParams
     
-    var fenv: Map[Int, List[KrivineInstruction]] = Map()
+    var fenv: Map[Int, Vector[KrivineInstruction]] = Map()
     fenv = fenv ++ env
     var i = 0
     val offset = if(fenv.isEmpty) 0 else fenv.keys.max
@@ -107,11 +113,11 @@ class Krivine(nfnNode: NFNNode){
     }
     //link and prepare function code!
     val code = linkFunctionCode(func.expr, offset)
-    return krivine.execute(code, List(), fenv, offset)
+    return krivine.execute(code, Vector(), fenv, offset)
   }
   
   
-  def linkFunctionCode(function: List[KrivineInstruction], offset: Int): List[KrivineInstruction] = {
+  def linkFunctionCode(function: Vector[KrivineInstruction], offset: Int): Vector[KrivineInstruction] = {
     return function.map { 
       inst => inst match{
         case ACCESS(varname, varnum) => ACCESS(varname, (varnum + offset))

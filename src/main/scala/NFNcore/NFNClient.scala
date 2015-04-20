@@ -3,7 +3,7 @@ package NFNcore
 import NFNcore.Lambda._
 
 import NFNcore.Messaging.TCPInterface
-import NFNcore.Packets.{PacketCommand, NFNManagement, NFNInterest}
+import NFNcore.Packets._
 
 /**
  * Created by blacksheeep on 26/03/15.
@@ -24,7 +24,8 @@ object NFNClient extends App{
       val parser = new LambdaParser
       val compiler = new LambdaCompiler
 
-      val prog = "add 1 2"
+      //val prog = "add 1 2"
+      val prog = "call 2 /local/sendInterest; /self; 0"
 
       val src = parser.applyDict(prog)
       val ast = parser.parse(src)
@@ -35,7 +36,12 @@ object NFNClient extends App{
 
       val pc = new PacketCommand(opcode)
 
+
+      //val name = PacketCommand2(Vector(NFNName2(Vector("foo")), NFNName2(Vector("bla"))))
+
       val interest = new NFNInterest(pc, "interest", null)
+
+      println(interest)
 
       face.sendPacket(interest)
 

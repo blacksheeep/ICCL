@@ -11,7 +11,7 @@ import NFNcore.Packets._
 class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStream, Int) => Unit) extends Thread{
   val sock: TCPServerInterface = new TCPServerInterface(port)
 
-  var faces: List[TCPSocketThread] = List()
+  var faces: Vector[TCPSocketThread] = Vector()
   var running = false
 
   var nextFaceNum = 0;
@@ -21,7 +21,7 @@ class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStrea
     while(running){
       val (pkt, tcpInterface) = sock.receivePacket()
       val newface = new TCPSocketThread(nextFaceNum, false, tcpInterface, packethandler)
-      faces = newface :: faces
+      faces = Vector(newface) ++ faces
       nextFaceNum += 1
       newface.start()
       packethandler(pkt, tcpInterface.out, -1)

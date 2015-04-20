@@ -43,16 +43,16 @@ class LambdaParser extends StdTokenParsers with PackratParsers {
   lazy val parens: PackratParser[Expr] = "(" ~> expr <~ ")"
   //Extensions
   lazy val extension: PackratParser[Expr] = buildin | number | string | list | name
-  lazy val name: PackratParser[Name] = rep(nameComponent) <~ ";" ^^ {case s => println("Name", s); Name(s.map(_.const))}
-  lazy val nameComponent: PackratParser[Str] = "/" ~> ident ^^ {case s => println("NameComp", s); Str(s)}
+  lazy val name: PackratParser[Name] = rep(nameComponent) <~ ";" ^^ {case s => Name(s.map(_.const).toVector)}
+  lazy val nameComponent: PackratParser[Str] = "/" ~> ident ^^ {case s => Str(s)}
   lazy val number: PackratParser[Const] =  posNumber | negNumber
-  lazy val posNumber: PackratParser[Const] = numericLit ^^ {case n => println(n); Const(n.toInt)}
+  lazy val posNumber: PackratParser[Const] = numericLit ^^ {case n => Const(n.toInt)}
   lazy val negNumber: PackratParser[Const] = (("-" ~> numericLit) ^^ {case n => Const(-n.toInt)})
   lazy val string: PackratParser[Str] = stringLit ^^ Str
-  lazy val list: PackratParser[Lst] =  "list" ~> "(" ~> rep(notapp) <~ ")" ^^ Lst
+  lazy val list: PackratParser[Lst] =  "list" ~> "(" ~> rep(notapp) <~ ")" ^^ {case elm => Lst(elm.toVector)}
   //build in functions
   lazy val buildin: PackratParser[Expr] = call | ifelse
-  lazy val call: PackratParser[Call] = "call" ~> numericLit ~ name ~ rep(notapp) ^^ {case num ~ n ~ params => println("Call "); Call(n, num.toInt, params)}
+  lazy val call: PackratParser[Call] = "call" ~> numericLit ~ name ~ rep(notapp) ^^ {case num ~ n ~ params => Call(n, num.toInt, params.toVector)}
   lazy val ifelse: PackratParser[Ifelse] = "ifelse" ~> notapp ~ notapp ~ notapp ^^ {case condition ~ fulfilled ~ notfulfilled => Ifelse(condition, fulfilled, notfulfilled)}
   //defining lambda functions, refer function parameters with _1, _2, _3, ..._n
   lazy val function: PackratParser[Function] = "function" ~> name ~ numericLit ~ expr ~ "endfunction" ~ expr ^^ {case n ~ numOfParams ~ expr ~ endfunction ~ prog => Function(n, numOfParams.toInt, -1, expr, prog)}
