@@ -2,7 +2,7 @@ package NFNcore.Lambda
 
 import Logging.{DEBUGMSG, Debuglevel}
 import NFNcore.NFNNode
-import NFNcore.Packets.{PacketCommand, NFNInterest}
+import NFNcore.Packets.{NFNContent, PacketCommand, NFNInterest}
 
 import scala.collection.mutable.Map
 
@@ -74,7 +74,7 @@ class KrivineBuildIn (nfnNode: NFNNode){
        res1.head match{
          case n: NFNName => return Vector(NUMBER(nfnNode.grabPIT(n)))
          case _ => {
-           println("Wrong argument")
+           println("Wrong argument in grabPIT")
          }
        }
        return null
@@ -87,7 +87,7 @@ class KrivineBuildIn (nfnNode: NFNNode){
        res1.head match{
          case n: NFNName => if(nfnNode.checkFIB(n)) return Vector(NUMBER(1)) else return Vector(NUMBER(0))
          case _ => {
-           println("Wrong argument")
+           println("Wrong argument in checkFIB")
          }
        }
      }
@@ -96,7 +96,7 @@ class KrivineBuildIn (nfnNode: NFNNode){
        res1.head match{
          case n: NFNName => return Vector(NUMBER(nfnNode.grabFIB(n)))
          case _ => {
-           println("Wrong argument")
+           println("Wrong argument in grabFIB")
          }
        }
        return null
@@ -112,7 +112,22 @@ class KrivineBuildIn (nfnNode: NFNNode){
            return Vector(NOP())
          }
          case _ => {
-           println("Wrong argument")
+           println("Wrong argument in sendInterest")
+         }
+       }
+     }
+    else if(fname == NFNName(Vector("local", "sendContent"))) {
+       val name = krivine.execute(params.head, Vector(), env, varoffset)
+       val facenum = krivine.execute(params.tail.head, Vector(), env, varoffset)
+
+       (name.head, facenum.head) match {
+         case (n: NFNName, fn: NUMBER) => {
+           val content = nfnNode.grabCS(n)
+           nfnNode.sendPacket(content, fn.v)
+           return Vector(NOP())
+         }
+         case _ => {
+           println("Wrong argument in sendContent")
          }
        }
      }

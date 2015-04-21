@@ -24,8 +24,15 @@ object NFNClient extends App{
       val parser = new LambdaParser
       val compiler = new LambdaCompiler
 
+      //add content
+      face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
+      val res_mgmt = face.receivePacket()
+      println(res_mgmt)
+
+      Thread.sleep(1000)
+
       //val prog = "add 1 2"
-      val prog = "call 2 /local/sendInterest; /self; 0"
+      val prog = "call 2 /local/sendContent; /hallo/welt; 0"
 
       val src = parser.applyDict(prog)
       val ast = parser.parse(src)
@@ -40,12 +47,14 @@ object NFNClient extends App{
       //val name = PacketCommand2(Vector(NFNName2(Vector("foo")), NFNName2(Vector("bla"))))
 
       val interest = new NFNInterest(pc, "interest", null)
-
       println(interest)
-
       face.sendPacket(interest)
 
       val res = face.receivePacket()
+      println(res)
+
+
+
 
       /*val face2 = new TCPInterface("localhost", 10001, 0)
       face2.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))

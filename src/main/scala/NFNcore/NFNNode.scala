@@ -132,21 +132,17 @@ class NFNNode(serverport: Int){
     }
   }
 
-  def sendPacket(interest: Packet, outface: Int): Unit ={
-
+  def sendPacket(packet: Packet, outface: Int): Unit ={
     val face = reciveface.faces.find(p => p.getInterface().num == outface)
-
-
-    //val face = reciveface.faces(outface) //TODO check real face number or faces have to be map with id -> face
     face match{
-      case Some(t) => t.sendPacket(interest)
+      case Some(t) => t.sendPacket(packet)
       case _ => {DEBUGMSG(Debuglevel.DEBUG, "No matching interface found")}
     }
 
   }
 
   def handlePacket(packet: Packet, reply: ObjectOutputStream, incommingFace: Int): Unit = {
-    DEBUGMSG(Debuglevel.INFO, "handle packet" + packet.toString)
+    DEBUGMSG(Debuglevel.INFO, "handle packet " + packet.toString)
     packet match{
       case m: NFNManagement => mgmt(m, reply)
       case i: NFNInterest => handleInterest(i, reply, incommingFace)

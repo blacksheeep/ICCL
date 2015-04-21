@@ -16,7 +16,3 @@ case class NFNManagement(command: String, params: List[String]) extends Packet
  * Data structure representations
  */
 case class PacketCommand(commands: Vector[KrivineInstruction]) extends Serializable
-
-case class NFNName2(name: Vector[String])
-
-case class PacketCommand2(commands: Vector[NFNName2]) extends Serializable
