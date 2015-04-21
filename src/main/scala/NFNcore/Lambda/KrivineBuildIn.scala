@@ -103,6 +103,7 @@ class KrivineBuildIn (nfnNode: NFNNode){
      }
     else if(fname == NFNName(Vector("local", "sendInterest"))){
        val name = krivine.execute(params.head, Vector(), env, varoffset)
+       println(name)
        val facenum = krivine.execute(params.tail.head, Vector(), env, varoffset)
        (name.head, facenum.head) match{
          case (n: NFNName, fn: NUMBER) => {
