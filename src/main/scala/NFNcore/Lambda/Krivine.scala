@@ -94,6 +94,12 @@ class Krivine(nfnNode: NFNNode){
         funcEnv += name -> Func(expr, numOfParams)
         return execute(prog, stack, env, varoffset)
       }
+      case NFNInterestInst(i) =>{
+        return Vector(NFNInterestInst(i))
+      }
+      case NFNContentInst(c) => {
+        return Vector(NFNContentInst(c))
+      }
       case _ => {
         return Vector(RESULT("Error"))
       }

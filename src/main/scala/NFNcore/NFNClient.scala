@@ -25,17 +25,17 @@ object NFNClient extends App{
       val compiler = new LambdaCompiler
 
       //add content
-      /*      face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
-            val res_mgmt = face.receivePacket()
-            println(res_mgmt)
+      face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
+      val res_mgmt = face.receivePacket()
+      println(res_mgmt)
 
-            Thread.sleep(1000)
-      */
-      //val prog = "add 1 2"
+      Thread.sleep(1000)
+
+      //search for content
       val prog = "" +
         "ifelse (call 2 /local/checkCS; /hallo/welt;)" +
-        "(call 2 /local/sendContent; /hallo/welt; 0)" +
-        "(call 2 /local/sendInterest; /self; 0)"
+        "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) 0)" +
+        "(call 2 /local/sendInterest; /self; 1)"
 
 
       val src = parser.applyDict(prog)

@@ -1,5 +1,7 @@
 package NFNcore.Lambda
 
+import NFNcore.Packets.{NFNInterest, NFNContent}
+
 abstract class KrivineInstruction extends Serializable
 
 
@@ -44,10 +46,14 @@ case class NFNName(comps: Vector[String]) extends KrivineInstruction
 case class VARIABLE(name: String, varnum: Int) extends KrivineInstruction
 case class LISTINST(list: Vector[Vector[KrivineInstruction]]) extends KrivineInstruction
 
-case class CALLINST(fname: NFNName, num: Int, params: Vector[Vector[KrivineInstruction]]) extends KrivineInstruction {//TODO: fine gradulated operations, ifelse, send, excludeparameter etc.
+case class CALLINST(fname: NFNName, num: Int, params: Vector[Vector[KrivineInstruction]]) extends KrivineInstruction {//TODO: fine gradulated operations, ifelse, send, excludeparameter etc.?
   def getKrivinInstruction() = ???
 }
 
 case class IFELSEINST(condition: Vector[KrivineInstruction], fullfiled: Vector[KrivineInstruction], notfulfilled: Vector[KrivineInstruction]) extends KrivineInstruction
 
 case class FUNCTIONINST(name: NFNName, numOfParams: Int, startVarNum: Int, expr: Vector[KrivineInstruction], prog: Vector[KrivineInstruction]) extends KrivineInstruction
+
+
+case class NFNInterestInst(i: NFNInterest) extends KrivineInstruction //TODO Implement
+case class NFNContentInst(c: NFNContent) extends KrivineInstruction //TODO Implement

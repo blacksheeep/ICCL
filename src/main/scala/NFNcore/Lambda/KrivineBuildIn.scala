@@ -41,7 +41,7 @@ class KrivineBuildIn (nfnNode: NFNNode){
        res1.head match{
          case n: NFNName => if (nfnNode.checkCS(n)) return Vector(NUMBER(1)) else return Vector(NUMBER(0))
          case _ => {
-           println("Wrong argument")
+           println("Wrong argument in checkCS")
          }
        }
        return null
@@ -49,15 +49,24 @@ class KrivineBuildIn (nfnNode: NFNNode){
     else if(fname == NFNName(Vector("local", "grabCS"))){
        val res1 = krivine.execute(params.head, Vector(), env, varoffset)
        res1.head match{
-         case n: NFNName => return Vector(nfnNode.grabCS(n).name) //TODO handle content not only name
+         case n: NFNName => return Vector(NFNContentInst(nfnNode.grabCS(n))) //TODO handle content not only name
          case _ => {
-           println("Wrong argument")
+           println("Wrong argument in grabCS")
          }
        }
        return null
      }
     else if(fname == NFNName(Vector("local", "pushCS"))){
-      ???
+       val content = krivine.execute(params.head, Vector(), env, varoffset)
+       content.head match{
+         case NFNContentInst(c) => {
+           nfnNode.CS.put(c.name, c)
+           return Vector(NOP())
+         }
+         case _ => {
+           println("Wrong argument in pushCS")
+         }
+       }
      }
     else if(fname == NFNName(Vector("local", "checkPIT"))){
        val res1 = krivine.execute(params.head, Vector(), env, varoffset)
@@ -80,7 +89,18 @@ class KrivineBuildIn (nfnNode: NFNNode){
        return null
      }
     else if(fname == NFNName(Vector("local", "pushPIT"))){
-      ???
+       val interest = krivine.execute(params.head, Vector(), env, varoffset)
+       val face = krivine.execute(params.tail.head, Vector(), env, varoffset)
+       (interest.head, face.head)match {
+         case (i: NFNInterestInst, facenum: NUMBER) => {
+            //nfnNode.PIT.put(i.i.name.commands.head, facenum.v) ///TODO THINK ABOUT HOW PIT WORKS AND WHAT TO ADD TO PIT HERE. PIT cannot contain only one instruction!
+           ???
+           return Vector(NOP())
+         }
+         case _ => {
+           println("Wrong argument in pushPIT")
+         }
+       }
      }
     else if(fname == NFNName(Vector("local", "checkFIB"))){
        val res1 = krivine.execute(params.head, Vector(), env, varoffset)
@@ -118,13 +138,12 @@ class KrivineBuildIn (nfnNode: NFNNode){
        }
      }
     else if(fname == NFNName(Vector("local", "sendContent"))) {
-       val name = krivine.execute(params.head, Vector(), env, varoffset)
+       val content = krivine.execute(params.head, Vector(), env, varoffset)
        val facenum = krivine.execute(params.tail.head, Vector(), env, varoffset)
 
-       (name.head, facenum.head) match {
-         case (n: NFNName, fn: NUMBER) => {
-           val content = nfnNode.grabCS(n)
-           nfnNode.sendPacket(content, fn.v)
+       (content.head, facenum.head) match {
+         case (c: NFNContentInst, fn: NUMBER) => {
+           nfnNode.sendPacket(c.c, fn.v)
            return Vector(NOP())
          }
          case _ => {
