@@ -24,8 +24,7 @@ class TCPSocketServerThread(port: Int, packethandler: (Packet, ObjectOutputStrea
       faces = Vector(newface) ++ faces
       nextFaceNum += 1
       newface.start()
-      packethandler(pkt, tcpInterface.out, -1)
-
+      packethandler(pkt, tcpInterface.out, newface.getInterface().num)
     }
   }
 }

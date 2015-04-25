@@ -112,9 +112,9 @@ class NFNNode(serverport: Int){
       DEBUGMSG(Debuglevel.DEBUG, "Interest received on face " + incommingFace + " was forwarded to face " + face)
     }*/
 
-    println(packet)
+    println(packet, "incomming face", incommingFace)
 
-    val kt = new KrivineThread(packet.name.commands, this)
+    val kt = new KrivineThread(packet.name.commands, this, incommingFace)
     kt.start()
   }
 
@@ -130,23 +130,13 @@ class NFNNode(serverport: Int){
     else{
       DEBUGMSG(Debuglevel.DEBUG, "No Matching PIT entry")
     }
-
-
-    /*if(checkPIT(content.name)){
-      val outface = grabPIT(content.name)
-      sendPacket(content, outface) //TODO for all entries of outface
-      pushCS(content)
-      DEBUGMSG(Debuglevel.DEBUG, "Handle Content, forwarded to face " + outface.toString )
-    }else{
-      DEBUGMSG(Debuglevel.DEBUG, "No Matching PIT entry")
-    }*/
   }
 
   def sendPacket(packet: Packet, outface: Int): Unit ={
     val face = reciveface.faces.find(p => p.getInterface().num == outface)
     face match{
       case Some(t) => t.sendPacket(packet)
-      case _ => {DEBUGMSG(Debuglevel.DEBUG, "No matching interface found")}
+      case _ => {DEBUGMSG(Debuglevel.DEBUG, "No matching interface found: " + outface)}
     }
 
   }

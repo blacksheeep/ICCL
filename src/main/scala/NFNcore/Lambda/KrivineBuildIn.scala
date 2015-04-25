@@ -90,10 +90,10 @@ class KrivineBuildIn (nfnNode: NFNNode){
      }
     else if(fname == NFNName(Vector("local", "pushPIT"))){
        val interest = krivine.execute(params.head, Vector(), env, varoffset)
-       val face = krivine.execute(params.tail.head, Vector(), env, varoffset)
-       (interest.head, face.head)match {
-         case (i: NFNName, facenum: NUMBER) => {
-            nfnNode.PIT.put(i, krivine.krivineThread) ///TODO THINK ABOUT HOW PIT WORKS AND WHAT TO ADD TO PIT HERE. PIT cannot contain only one instruction!
+       //val face = krivine.execute(params.tail.head, Vector(), env, varoffset)
+       (interest.head) match {
+         case (i: NFNName) => {
+            nfnNode.PIT.put(i, krivine.krivineThread) ///TODO THINK ABOUT HOW PIT WORKS AND WHAT TO ADD TO PIT HERE. PIT has to maintain multiple interests for multiple threads --> list
            return Vector(NOP())
          }
          case _ => {
@@ -144,6 +144,16 @@ class KrivineBuildIn (nfnNode: NFNNode){
          case (c: NFNContentInst, fn: NUMBER) => {
            nfnNode.sendPacket(c.c, fn.v)
            return Vector(NOP())
+         }
+         case(c: NFNContentInst, name: NFNName) => {
+           println("name", name)
+            if(name.comps.head == "origin"){
+              nfnNode.sendPacket(c.c, krivine.krivineThread.originFace)
+              return Vector(NOP())
+            }
+           else{
+              DEBUGMSG(Debuglevel.DEBUG, "Error, unknown face in sendContent")
+            }
          }
          case _ => {
            println("Wrong argument in sendContent")

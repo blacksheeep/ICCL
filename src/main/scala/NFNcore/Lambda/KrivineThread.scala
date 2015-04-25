@@ -6,7 +6,7 @@ import NFNcore.NFNNode
 /**
  * Created by blacksheeep on 15/04/15.
  */
-class KrivineThread(prog: Vector[KrivineInstruction], nfnNode: NFNNode) extends Thread{
+case class KrivineThread(prog: Vector[KrivineInstruction], nfnNode: NFNNode, originFace: Int) extends Thread{
   val krivine = new Krivine(nfnNode, this)
   val s: java.util.concurrent.Semaphore = new java.util.concurrent.Semaphore(0);
 
