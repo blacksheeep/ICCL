@@ -8,7 +8,7 @@ import scala.collection.mutable.Map
 case class Func(expr: Vector[KrivineInstruction], numOfParams: Int)
 
 
-class Krivine(nfnNode: NFNNode){
+case class Krivine(nfnNode: NFNNode, krivineThread: KrivineThread){
   
   //Function environment
   var funcEnv: Map[NFNName, Func] = Map()

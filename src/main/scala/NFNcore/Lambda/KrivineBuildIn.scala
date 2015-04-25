@@ -78,23 +78,22 @@ class KrivineBuildIn (nfnNode: NFNNode){
        }
        return null
      }
-    else if(fname == NFNName(Vector("local", "grabPIT"))){
-       val res1 = krivine.execute(params.head, Vector(), env, varoffset)
+    else if(fname == NFNName(Vector("local", "grabPIT"))){ //TODO
+       /*val res1 = krivine.execute(params.head, Vector(), env, varoffset)
        res1.head match{
          case n: NFNName => return Vector(NUMBER(nfnNode.grabPIT(n)))
          case _ => {
            println("Wrong argument in grabPIT")
          }
        }
-       return null
+       return null*/
      }
     else if(fname == NFNName(Vector("local", "pushPIT"))){
        val interest = krivine.execute(params.head, Vector(), env, varoffset)
        val face = krivine.execute(params.tail.head, Vector(), env, varoffset)
        (interest.head, face.head)match {
-         case (i: NFNInterestInst, facenum: NUMBER) => {
-            //nfnNode.PIT.put(i.i.name.commands.head, facenum.v) ///TODO THINK ABOUT HOW PIT WORKS AND WHAT TO ADD TO PIT HERE. PIT cannot contain only one instruction!
-           ???
+         case (i: NFNName, facenum: NUMBER) => {
+            nfnNode.PIT.put(i, krivine.krivineThread) ///TODO THINK ABOUT HOW PIT WORKS AND WHAT TO ADD TO PIT HERE. PIT cannot contain only one instruction!
            return Vector(NOP())
          }
          case _ => {
@@ -151,9 +150,9 @@ class KrivineBuildIn (nfnNode: NFNNode){
          }
        }
      }
-    else if(fname == NFNName(Vector("local", "wait"))){ //TODO as machine instruction
+    else if(fname == NFNName(Vector("local", "wait"))){ //TODO as machine instruction? Wait for a number of interests arrived for this thread?
        DEBUGMSG(Debuglevel.DEBUG, "Thread is waiting")
-       Thread.currentThread().wait()
+       krivine.krivineThread.s.acquire()
        return Vector(NOP())
      }
      ???

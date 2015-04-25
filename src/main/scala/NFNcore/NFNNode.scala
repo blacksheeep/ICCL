@@ -17,10 +17,8 @@ class NFNNode(serverport: Int){
 
   var CS:  ConcurrentHashMap[NFNName, NFNContent] = new ConcurrentHashMap()
   var FIB: ConcurrentHashMap[NFNName, Int] = new ConcurrentHashMap()
-  var PIT: ConcurrentHashMap[KrivineInstruction, Int] = new ConcurrentHashMap()
+  var PIT: ConcurrentHashMap[NFNName, KrivineThread] = new ConcurrentHashMap()
 
-  val PCT: ConcurrentHashMap[Int, KrivineThread] = new ConcurrentHashMap()
-  
   val reciveface = new TCPSocketServerThread(serverport, handlePacket)
 
 
@@ -83,17 +81,17 @@ class NFNNode(serverport: Int){
     return if (PIT.containsKey(interest)) return true else return false
   }
 
-  def grabPIT(interest: KrivineInstruction) : Int = {
+  def grabPIT(interest: NFNName) : KrivineThread = {
     return PIT.get(interest)
   }
 
-  def pushPIT(interest: KrivineInstruction, incommingFace: Int): Unit = {
+  def pushPIT(interest: NFNName, krivineThread: KrivineThread): Unit = {
     /*if(PIT.containsKey(interest)){
       val entry = PIT.get(interest)
       PIT.put(interest, incommingFace :: entry)
     }
     else{*/
-      PIT.put(interest, incommingFace)
+      PIT.put(interest, krivineThread)
     //}
   }
 
@@ -117,19 +115,31 @@ class NFNNode(serverport: Int){
     println(packet)
 
     val kt = new KrivineThread(packet.name.commands, this)
-    PCT.put(1, kt)
     kt.start()
   }
 
   def handleContent(content: NFNContent, reply: ObjectOutputStream) : Unit = {
-    if(checkPIT(content.name)){
+
+    println("PIT", PIT)
+
+    if(PIT.containsKey(content.name)){
+      CS.put(content.name, content)
+      PIT.get(content.name).s.release()
+      DEBUGMSG(Debuglevel.DEBUG, "Handle Content, continue Computation")
+    }
+    else{
+      DEBUGMSG(Debuglevel.DEBUG, "No Matching PIT entry")
+    }
+
+
+    /*if(checkPIT(content.name)){
       val outface = grabPIT(content.name)
       sendPacket(content, outface) //TODO for all entries of outface
       pushCS(content)
       DEBUGMSG(Debuglevel.DEBUG, "Handle Content, forwarded to face " + outface.toString )
     }else{
       DEBUGMSG(Debuglevel.DEBUG, "No Matching PIT entry")
-    }
+    }*/
   }
 
   def sendPacket(packet: Packet, outface: Int): Unit ={
