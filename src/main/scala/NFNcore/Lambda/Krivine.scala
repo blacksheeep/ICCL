@@ -28,7 +28,7 @@ class Krivine(nfnNode: NFNNode){
     DEBUGMSG(Debuglevel.DEBUG, "Executing Krivine Instruction: " + instructions.head.toString() + " varoffset: " + varoffset)
     instructions.head match {
       case NOP() => {
-        return(execute(instructions.tail, stack, env, varoffset))
+        return (execute(instructions, stack, env, varoffset))
       }
       case ACCESS(varname, varnum) => {
         val offset = 0 //if(varname.startsWith("_")) varoffset else 0 //use varoffset only for function parameters //TODO problem with recursion, since old vars start also with _1
@@ -64,7 +64,7 @@ class Krivine(nfnNode: NFNNode){
         return Vector(NFNName(comps))
       }
       case LISTINST(l) => {
-        return Vector(LISTINST(l))
+        return Vector(LISTINST(l.map(e => execute(e, stack, env, varoffset))))
       }
       case CALLINST(fname, num, params) => {
         if(funcEnv.contains(fname)){
@@ -99,6 +99,11 @@ class Krivine(nfnNode: NFNNode){
       }
       case NFNContentInst(c) => {
         return Vector(NFNContentInst(c))
+      }
+      case WAIT() => {
+        DEBUGMSG(Debuglevel.DEBUG, "Thread waiting is ")
+        Thread.currentThread().wait()
+        return execute(instructions.tail, stack, env, varoffset)
       }
       case _ => {
         return Vector(RESULT("Error"))

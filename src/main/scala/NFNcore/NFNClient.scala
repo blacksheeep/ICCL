@@ -21,13 +21,27 @@ object NFNClient extends App{
     case Some(config) => {
 
       val face = new TCPInterface("localhost", config.targetport, 0)
+      val face2 = new TCPInterface("localhost", 10001, 0)
+
       val parser = new LambdaParser
       val compiler = new LambdaCompiler
 
       //add content
-      face.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
-      val res_mgmt = face.receivePacket()
-      println(res_mgmt)
+      face2.sendPacket(NFNManagement("addcontent", List("hallo/welt", "halloweltdata")))
+      val res_mgmt1 = face2.receivePacket()
+      println(res_mgmt1)
+
+      Thread.sleep(1000)
+
+      face.sendPacket(NFNManagement("newface", List("localhost", "10001")))
+      val res_mgmt2 = face.receivePacket()
+      println(res_mgmt2)
+
+      Thread.sleep(1000)
+
+      face.sendPacket(NFNManagement("prefixreg", List("1", "hallo/welt")))
+      val res_mgmt3 = face.receivePacket()
+      println(res_mgmt3)
 
       Thread.sleep(1000)
 
@@ -35,7 +49,7 @@ object NFNClient extends App{
       val prog = "" +
         "ifelse (call 2 /local/checkCS; /hallo/welt;)" +
         "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) 0)" +
-        "(call 2 /local/sendInterest; /self; 1)"
+        "list((call 2 /local/sendInterest; /self; (call 2 /local/grabFIB; /hallo/welt;)) (call 1 /local/wait;))"
 
 
       val src = parser.applyDict(prog)

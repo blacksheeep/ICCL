@@ -45,8 +45,9 @@ object test extends App{
   //val src = parser.applyDict("(λx.add x (add 1 2)) 3")
   //val src = parser.applyDict("ifelse (add 1 1) (add 3 (add 1 2)) 0")
   
-  val src = parser.applyDict("function /ad3; 3 (add _3 (add _2 _1)) endfunction (λx.call 4 /ad3; x 3 4) 2" ) // what if parameter is a var??
-  
+  //val src = parser.applyDict("function /ad3; 3 (add _3 (add _2 _1)) endfunction (λx.call 4 /ad3; x 3 4) 2" ) // what if parameter is a var??
+
+  val src = parser.applyDict("list((add 1 2) (add 2 3))")
   //val src = parser.applyDict("function /ad3; 3 (add _3 (add _2 _1)) endfunction (λx.call 4 /ad3; (call 4 ad3 x 2 3) 4 5) 1" )
   
   

@@ -151,6 +151,11 @@ class KrivineBuildIn (nfnNode: NFNNode){
          }
        }
      }
+    else if(fname == NFNName(Vector("local", "wait"))){ //TODO as machine instruction
+       DEBUGMSG(Debuglevel.DEBUG, "Thread is waiting")
+       Thread.currentThread().wait()
+       return Vector(NOP())
+     }
      ???
   }
   

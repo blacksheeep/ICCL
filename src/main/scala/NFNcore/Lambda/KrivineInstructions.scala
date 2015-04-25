@@ -55,5 +55,7 @@ case class IFELSEINST(condition: Vector[KrivineInstruction], fullfiled: Vector[K
 case class FUNCTIONINST(name: NFNName, numOfParams: Int, startVarNum: Int, expr: Vector[KrivineInstruction], prog: Vector[KrivineInstruction]) extends KrivineInstruction
 
 
-case class NFNInterestInst(i: NFNInterest) extends KrivineInstruction //TODO Implement
-case class NFNContentInst(c: NFNContent) extends KrivineInstruction //TODO Implement
+case class NFNInterestInst(i: NFNInterest) extends KrivineInstruction
+case class NFNContentInst(c: NFNContent) extends KrivineInstruction
+
+case class WAIT() extends KrivineInstruction
