@@ -119,9 +119,7 @@ class NFNNode(serverport: Int){
   }
 
   def handleContent(content: NFNContent, reply: ObjectOutputStream) : Unit = {
-
-    println("PIT", PIT)
-
+    
     if(PIT.containsKey(content.name)){
       CS.put(content.name, content)
       PIT.get(content.name).s.release()
