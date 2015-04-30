@@ -48,10 +48,10 @@ object NFNClient extends App{
       //search for content
       val prog = "" +
         "ifelse (call 2 /local/checkCS; /hallo/welt;)" +
-        "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;)" +
-        "list((call 2 /local/sendInterest; /self; (call 2 /local/grabFIB; /hallo/welt;)) (call 3 /local/pushPIT; /hallo/welt; 2) (call 1 /local/wait;)" +
-        "(ifelse (call 2 /local/checkCS; /hallo/welt;) (call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;) (add 1 2)) " +
-        ")"
+          "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;)" +
+          "list((call 2 /local/sendInterest; /self; (call 2 /local/grabFIB; /hallo/welt;)) (call 3 /local/pushPIT; /hallo/welt; 2) (call 1 /local/wait;)" + //TODO what about the
+            "(ifelse (call 2 /local/checkCS; /hallo/welt;) (call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;) (add 1 2)) " +
+          ")"
 
 
       val src = parser.applyDict(prog)
@@ -63,7 +63,6 @@ object NFNClient extends App{
 
       val pc = new PacketCommand(opcode)
 
-
       //val name = PacketCommand2(Vector(NFNName2(Vector("foo")), NFNName2(Vector("bla"))))
 
       val interest = new NFNInterest(pc, "interest", null)
@@ -73,6 +72,13 @@ object NFNClient extends App{
       val res = face.receivePacket()
       println("Result:\n" + res)
 
+
+      Thread.sleep(5000)
+
+      face.sendPacket(interest)
+
+      val res2 = face.receivePacket()
+      println("Result:\n" + res2)
 
 
 

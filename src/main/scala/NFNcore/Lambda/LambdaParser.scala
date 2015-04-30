@@ -31,7 +31,26 @@ class LambdaParser extends StdTokenParsers with PackratParsers {
   }
   
   def parse(source: String): ParseResult[Expr] = {
-    val tokens = new lexical.Scanner(source)
+    val t1 = new lexical.Scanner(source)
+
+
+    var token_list: Vector[String] = Vector()
+
+    var t = t1
+
+    while(!t.atEnd){
+      val str: String = t.first.chars.toString
+
+      token_list = token_list ++ Vector(str)
+      t = t.rest
+    }
+    println(token_list)
+    val srcmapped: Vector[String] = token_list.map(e => {
+      if(globaldict.contains(e)) globaldict(e) else e
+    })
+    val src_str = srcmapped.fold("") {(z,i) => z+i + " "}
+    println(src_str)
+    val tokens = new lexical.Scanner(src_str)
     phrase(expr)(tokens)
   }
   
