@@ -24,6 +24,17 @@ class LambdaParser extends StdTokenParsers with PackratParsers {
   globaldict += "tail" -> "call 2 /local/tail;"
   globaldict += "len" -> "call 2 /local/length;"
   globaldict += "prepend" -> "call 3 /local/prepend;"
+  globaldict += "checkCS" -> "call 2 /local/checkCS;"
+  globaldict += "grabCS" -> "call 2 /local/grabCS;"
+  globaldict += "pushCS" -> "call 2 /local/pushCS;"
+  globaldict += "checkPIT" -> "call 2 /local/checkPIT;"
+  globaldict += "grabPIT" -> "call 2 /local/grabPIT;"
+  globaldict += "pushPIT" -> "call 2 /local/pushPIT;"
+  globaldict += "checkFIB" -> "call 2 /local/checkFIB;"
+  globaldict += "grabFIB" -> "call 2 /local/grabFIB;"
+  globaldict += "pushFIB" -> "call 2 /local/pushFIB;"
+  globaldict += "sendInterest" -> "call 3 /local/sendInterest;"
+  globaldict += "sendContent" -> "call 3 /local/sendContent;"
   
   
   def apply(source: String){
