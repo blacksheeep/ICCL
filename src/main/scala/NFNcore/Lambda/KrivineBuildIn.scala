@@ -130,6 +130,10 @@ class KrivineBuildIn (nfnNode: NFNNode){
            nfnNode.sendPacket(interest, fn.v)
            return Vector(NOP())
          }
+         case(i: NFNInterestInst, fn: NUMBER) => {
+           nfnNode.sendPacket(i.i, fn.v)
+           return Vector(NOP())
+         }
          case _ => {
            println("Wrong argument in sendInterest")
          }
@@ -164,6 +168,13 @@ class KrivineBuildIn (nfnNode: NFNNode){
        krivine.krivineThread.s.acquire()
        return Vector(NOP())
      }
+    else if(fname == NFNName(Vector("local", "mkInterest"))){
+       //return mkInterest(params.head, env, varoffset, krivine)
+       return Vector(NFNInterestInst(NFNInterest(PacketCommand(params.head), "typ", null)))
+    }
+    else if(fname == NFNName(Vector("local", "mkContent"))){
+      return mkContent(params.head, params.tail.head, env, varoffset, krivine)
+    }
      ???
   }
   
@@ -248,6 +259,32 @@ class KrivineBuildIn (nfnNode: NFNNode){
     (res1.head, res2.head) match {
       case (v1: KrivineInstruction, LISTINST(l)) => {
         return  Vector(LISTINST( Vector(Vector(v1)) ++ l))
+      }
+      case _ => ???
+    }
+  }
+
+  def mkInterest(param1: Vector[KrivineInstruction], env: Map[Int, Vector[KrivineInstruction]], varoffset: Int, krivine: Krivine): Vector[KrivineInstruction] = {
+
+    val res1 = krivine.execute(param1, Vector(), env, varoffset)
+    DEBUGMSG(Debuglevel.DEBUG,"Performing buildin function: mkInterest " + res1 +" (" + param1 + ")  with varoffset: " + varoffset)
+
+    res1 match{
+      case n : Vector[KrivineInstruction] => {
+        return Vector(NFNInterestInst(NFNInterest(PacketCommand(res1), "typ", null)))
+      }
+      case _ => ???
+    }
+  }
+
+  def mkContent(param1: Vector[KrivineInstruction], param2: Vector[KrivineInstruction], env: Map[Int, Vector[KrivineInstruction]], varoffset: Int, krivine: Krivine): Vector[KrivineInstruction] = {
+    val res1 = krivine.execute(param1, Vector(), env, varoffset)
+    val res2 = krivine.execute(param2, Vector(), env, varoffset)
+    DEBUGMSG(Debuglevel.DEBUG,"Performing buildin function: mkInterest " + res1 +" (" + param1 + ") + " + res2 +" (" + param2 + ") with varoffset: " + varoffset)
+    println(res2)
+    (res1.head, res2) match{
+      case (n: NFNName, c: Vector[KrivineInstruction]) => {
+        return Vector(NFNContentInst(NFNContent(n, "typ", null, c.toString())))
       }
       case _ => ???
     }

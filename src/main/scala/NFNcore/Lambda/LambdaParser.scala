@@ -11,7 +11,7 @@ class LambdaLexer extends StdLexical {
 class LambdaParser extends StdTokenParsers with PackratParsers {
   type Tokens = StdLexical
   val lexical = new LambdaLexer
-  lexical.delimiters ++= Seq("λ", ".", "(", ")", "-", "/", ";")
+  lexical.delimiters ++= Seq("λ", ".", "(", ")", "-", "/", ";", " ")
   lexical.reserved ++= Seq("call", "lookup", "ifelse", "function", "endfunction", "list")
   
   var globaldict: Map[String, String] = Map()
@@ -42,7 +42,7 @@ class LambdaParser extends StdTokenParsers with PackratParsers {
   }
   
   def parse(source: String): ParseResult[Expr] = {
-    val t1 = new lexical.Scanner(source)
+    /*val t1 = new lexical.Scanner(source)
 
 
     var token_list: Vector[String] = Vector()
@@ -60,8 +60,8 @@ class LambdaParser extends StdTokenParsers with PackratParsers {
       if(globaldict.contains(e)) globaldict(e) else e
     })
     val src_str = srcmapped.fold("") {(z,i) => z+i + " "}
-    println(src_str)
-    val tokens = new lexical.Scanner(src_str)
+    println(src_str)*/
+    val tokens = new lexical.Scanner(source)
     phrase(expr)(tokens)
   }
   

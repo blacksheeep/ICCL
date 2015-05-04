@@ -54,7 +54,7 @@ object test extends App{
   //val src = parser.applyDict("function rec 2 (ifelse (eq _1 _2) (add _1 _2) (call 3 rec (add _1 1) _2)) endfunction call 3 rec 1 5")
   //val src = parser.applyDict("function rec 2 (ifelse (eq _1 _2) (add _1 _2) (call 3 rec (add _1 ((λx.x) 2)) _2)) 1 endfunction (λx.call 3 rec 1 x) 8")
   
-  val src = """
+  /*val src = """
     function /sumlist; 1
       ifelse (eq (len _1) 1) 
         (head _1)
@@ -64,11 +64,14 @@ object test extends App{
         ) 
     endfunction
     call 3 /sumlist; list(1 2 3 4 5 6 7 8 9 10)
-    """
+    """*/
     
   //val src = "head (tail (prepend 3 list(2 1)))"
 
  // DEBUGMSG(Debuglevel.INFO, src)
+
+  val src = "call 3 /local/mkContent; /res; (call 3 /local/add; 1 2)"
+
   println(src)
   val ast = parser.parse(src)
   DEBUGMSG(Debuglevel.INFO, ast.toString())

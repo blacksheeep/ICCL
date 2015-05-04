@@ -46,15 +46,20 @@ object NFNClient extends App{
       Thread.sleep(1000)
 
       //search for content
-      val prog = "" +
+      /*val prog = "" +
         "ifelse (call 2 /local/checkCS; /hallo/welt;)" +
           "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;)" +
           "list((call 2 /local/sendInterest; /self; (call 2 /local/grabFIB; /hallo/welt;)) (call 3 /local/pushPIT; /hallo/welt; 2) (call 1 /local/wait;)" + //TODO what about the
             "(ifelse (call 2 /local/checkCS; /hallo/welt;) (call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;) (add 1 2)) " +
-          ")"
+          ")"*/
 
+      val prog = "" +
+        "ifelse (call 2 /local/checkCS; /hallo/welt;)" +
+        "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;)" +
+        "(call 2 /local/sendInterest; (call 2 /local/mkInterest; (call 3 /local/add; 1 2)) 1) "
 
-      val src = parser.applyDict(prog)
+      //val src = parser.applyDict(prog)
+      val src = prog
       val ast = parser.parse(src)
 
       println(ast)
