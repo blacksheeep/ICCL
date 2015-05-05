@@ -56,7 +56,12 @@ object NFNClient extends App{
       val prog = "" +
         "ifelse (call 2 /local/checkCS; /hallo/welt;)" +
         "(call 2 /local/sendContent; (call 2 /local/grabCS; /hallo/welt;) /origin;)" +
-        "(call 2 /local/sendInterest; (call 2 /local/mkInterest; (call 3 /local/add; 1 2)) 1) "
+        "list(" +
+        "(call 2 /local/sendInterest; (call 2 /local/mkInterest; (call 2 /local/sendContent; (call 2 /local/mkContent; (/test/data;) (call 3 /local/add; 1 2)) /origin;)) 1)" +
+        "(call 2 /local/pushPIT; /test/data;)" +
+        "(call 1 /local/wait;)" +
+        "(call 3 /local/sendContent; (call 2 /local/grabCS; /test/data;) /origin;) " +
+        ")"
 
       //val src = parser.applyDict(prog)
       val src = prog

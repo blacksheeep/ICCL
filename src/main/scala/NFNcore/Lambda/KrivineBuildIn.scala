@@ -280,10 +280,10 @@ class KrivineBuildIn (nfnNode: NFNNode){
   def mkContent(param1: Vector[KrivineInstruction], param2: Vector[KrivineInstruction], env: Map[Int, Vector[KrivineInstruction]], varoffset: Int, krivine: Krivine): Vector[KrivineInstruction] = {
     val res1 = krivine.execute(param1, Vector(), env, varoffset)
     val res2 = krivine.execute(param2, Vector(), env, varoffset)
-    DEBUGMSG(Debuglevel.DEBUG,"Performing buildin function: mkInterest " + res1 +" (" + param1 + ") + " + res2 +" (" + param2 + ") with varoffset: " + varoffset)
+    DEBUGMSG(Debuglevel.DEBUG,"Performing buildin function: mkContent " + res1 +" (" + param1 + ") + " + res2 +" (" + param2 + ") with varoffset: " + varoffset)
     println(res2)
-    (res1.head, res2) match{
-      case (n: NFNName, c: Vector[KrivineInstruction]) => {
+    (res1.head, res2.head) match{ //TODO res2 or res2.head (is res2 required in some cases, otherwise rase )????
+      case (n: NFNName, c: KrivineInstruction) => {
         return Vector(NFNContentInst(NFNContent(n, "typ", null, c.toString())))
       }
       case _ => ???
